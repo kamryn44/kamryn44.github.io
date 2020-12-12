@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>My Website</title>
+    <link>/</link>
+    <description>Recent content on My Website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Sat, 12 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Working Together</title>
+      <link>/post/2020/12/12/r-code-and-python/</link>
+      <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/12/r-code-and-python/</guid>
+      <description>R code &amp;amp; Python The reticulation package allows R code and Python to work together.
+#reticulate::install_miniconda #reticulate::py_install(&amp;quot;pandas&amp;quot;) #install.packages(&amp;quot;reticulate&amp;quot;) library(reticulate) This is an R code chunk.
+snowman &amp;lt;- &amp;quot;Frosty&amp;quot; snowman ## [1] &amp;quot;Frosty&amp;quot; This is a Python code chunk. Python uses ‘r.’ to call an item defined by R code.
+print(r.snowman) ## Frosty hohoho = &amp;quot;Santa&amp;quot; print(r.snowman, hohoho) ## Frosty Santa This is an R code code chunk. R code uses ‘py$’ to call an item defined by Python.</description>
+    </item>
+    
+    <item>
+      <title>Project 2 - Medicaid Enrollment in 1986</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 23 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Introduction
+This dataset (from the 1986 Medicaid Consumer Survey) is comprised of 996 people (observations) in California who are eligible to claim Medicaid benefits. The study participants have been split into two groups: one group contains people who are enrolled in a managed care demonstration program and the other group is a fee-for-service comparison group of non-enrollees. There are a total of 14 variables for each observed participant, some of which include: “visits” for the number of visits to the doctor they made in 1986; “age” for the age of the respondent; “income” indicating the annual household income (an averaged range); “health1”, which represents the first principal component (divided by 1000)of three health-status variables: functional limitations, acute conditions, and chronic condition; “access”, indicative of the availability of services for the respondent (0 = low access, 1 = high access); “gender”, with options of female or male; and “enroll”, which is a factor stating whether the individual is or is not enrolled in a demonstration program.</description>
+    </item>
+    
+    <item>
+      <title>Project 1: Voting Habits of College Students</title>
+      <link>/project/project1/</link>
+      <pubDate>Sun, 18 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Introduction One of the two datasets I chose was called Political (renamed to college_voters) and describes a dataset of the “Polical Behvaior of College Students”. After taking a simple random sample of 60 students at Grinnel College (United States) in 1992, two fellow college students were able to obtain 59 responses on nine variables through phone interviews.Of the nine variables, those that were used in this analysis included:“Year”- the class year of school the respondent was in; “Sex” - noted as a numeric observation, valuing male=0 or female-1; “Vote” - referencing the voting status of the respondent as they apply to the four options of 0 (not eligible to vote), 1 (elegible but not registered to vote), 2 (registered but did not vote), and 3 (voted); “Ethics” - A scale (1-5) of how the respondent believe politics should be ruled by (1 being on the side of ethical considerations and 5 on the side of practical power); and, lastly, “Inform” - Another scaled, this one representing how informed the respondent felt about poltiicals (between 1, meaning uninformed, and 5, meaning very well informed).</description>
+    </item>
+    
+    <item>
+      <title>Projects</title>
+      <link>/projects/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/projects/</guid>
+      <description>  Check out some of my coding projects below:
+ Wrangling &amp;amp; Exploratory Data Analysis
+ Modeling, Inference, Prediction
+  -- </description>
+    </item>
+    
+    <item>
+      <title>Resume</title>
+      <link>/resume/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resume/</guid>
+      <description>     </description>
+    </item>
+    
+  </channel>
+</rss>

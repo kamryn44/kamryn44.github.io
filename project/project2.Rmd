@@ -1,0 +1,373 @@
+---
+title:  "Project 2 - Medicaid Enrollment in 1986"
+author: "Kamryn Scamperle (kas6327)"
+class: "SDS 348: Computational Biology and Bioinformatics"
+date: "2020-11-23"
+output: html_document
+---
+
+**Introduction** 
+
+This dataset (from the 1986 Medicaid Consumer Survey) is comprised of 996 people (observations) in California who are eligible to claim Medicaid benefits. The study participants have been split into two groups: one group contains people who are enrolled in a managed care demonstration program and the other group is a fee-for-service comparison group of non-enrollees. There are a total of 14 variables for each observed participant, some of which include: "visits" for the number of visits to the doctor they made in 1986; "age" for the age of the respondent; "income" indicating the annual household income (an averaged range); "health1", which represents the first principal component (divided by 1000)of three health-status variables: functional limitations, acute conditions, and chronic condition; "access", indicative of the availability of services for the respondent (0 = low access, 1 = high access); "gender", with options of female or male; and "enroll", which is a factor stating whether the individual is or is not enrolled in a demonstration program. Overall, these variables (and the few not listed) were analyzed upon the binary variable "enroll" so as to find out if any of them were predictive or indicative of whether an individual is enrolled in a demonstration program. This could lead to a better understanding of the differences between the characteristics and effects of a fee-for-service-based health care system versus a health care system comprised of government-run programs.
+ 
+
+```{R}
+library(tidyverse)
+library(readxl)
+Medicaid <- read_excel("Medicaid1986.xls")
+
+```
+
+
+```{R}
+#1
+
+
+Medicaid<-Medicaid %>% mutate(school=case_when(school<=0~"none",
+                                               school<=10 ~"below hs",
+                                               school<=13~"hs",
+                                               school<=18~"college"))
+
+##manova
+manova(cbind(visits, exposure, children, age, income, health1, health2, access)~school, data=Medicaid)
+
+medicaid_manova <- manova(cbind(visits, exposure, children, age, income, health1, health2, access)~school, data=Medicaid)
+
+summary(medicaid_manova)
+
+
+##anova
+summary.aov(medicaid_manova)
+
+
+#post-hoc tests
+pairwise.t.test(Medicaid$children,Medicaid$school, p.adj="none")
+pairwise.t.test(Medicaid$age,Medicaid$school, p.adj="none")
+pairwise.t.test(Medicaid$income,Medicaid$school, p.adj="none")
+
+
+##assumptions 
+library(rstatix)
+
+group <- Medicaid$school
+DVs <- Medicaid %>% select(visits, exposure, children, age, income, health1, health2, access)
+
+#Test multivariate normality for each group (null: assumption met)
+sapply(split(DVs,group), mshapiro_test)
+
+#If any p<.05, stop (assumption violated). If not, test homogeneity of covariance matrices
+
+#Box's M test (null: assumption met)
+box_m(DVs, group)
+
+```
+
+The p-value of the MANOVA test was 2.2e-16, which means at least one of the numeric variables significantly differs from the others by "school". After following up this result with one-way ANOVAs for each of these variables, only "children", "age", and "income" reported p-values < 0.05, which, with the significance level left unadjusted, meant that for each of them, at least one site differed significantly. 
+
+From all of the MANOVA, ANOVA, and pairwise t-tests, a total of 27 hypothesis tests have been performed at this point. This means that, overall, there's a 135% chance that at least one Type I error was made. However, using the Bonferroni method the chance of a Type I error could be kepy at 5%, by adjusting the significance level to 0.00185 (0.05 / 27). After making the adjustment, the post hoc test showed there is no significant difference in the number of children between each of the levels of school; however, there is a significant difference in age between people with a level of education below high school (below hs) and people in college, between below high school and high school, between college level and people with no education ("none"), and people of high school level and people with none. The only significant difference in income across the different levels of completed schooling was between the high school level and people with no education ("none").
+
+The MANOVA test assumes the data is composed of random samples that are independent observations, that the dependent variables have multivariate normality, that there is equal variance (homogeneity) for each dependent variable and equal covariance between any two of the dependent variables, that there is a linear relationship among the dependent variables, that there are no extreme univariate or multivariate outliers, and that there is no multicollinearity, meaning the dependent variables are not correlated. Because each of the p-values were below 0.05 after testing for multivariate normality, it's clear that the assumptions were violated. 
+
+
+```{R}
+#2
+
+##distributions are normal, so I can perform a t-test
+ggplot(Medicaid,aes(access,fill=gender))+geom_histogram(bins=6.5)+
+  facet_wrap(~gender,ncol=2)+theme(legend.position="none")
+
+
+##observed test statistic (mean difference) = 0.0100414
+Medicaid%>%group_by(gender)%>%
+  summarize(means=mean(access))%>%summarize(`mean_diff`=diff(means))
+
+
+##randomization test of differences in means
+rand_dist<-vector()
+for(i in 1:5000){
+  new<-data.frame(access=sample(Medicaid$access),gender=Medicaid$gender)
+  rand_dist[i]<-mean(new[new$gender=="female",]$access) - 
+    mean(new[new$gender=="male",]$access)}
+
+{hist(rand_dist,main="",ylab=""); abline(v = c(-0.0100414, 0.0100414),col="red")}
+
+
+##two-tailed p-value 
+mean(rand_dist>0.0100414 | rand_dist< -0.0100414)
+
+```
+A randomization test testing for the mean difference of availability of services ("access") between females and males ("gender") was performed:
+
+H0: The mean availability of services for males and females is the same.
+HA: The mean availability of services for males and females is different.
+
+The observed test statistic for the mean difference in "access" between males and females is 0.010014. The two-tailed p-value (0.5308) represents the probability of observing a mean difference between females and males as extreme as that which was found, meaning how likely it would be to get a mean difference of such size if the "access" values were each paired randomly with a "gender" group. Because the p-value is greater than 0.05, we fail to reject the null hypothesis that the mean availability of services ("access") for males and females ("gender") is the same. 
+
+
+```{R}
+#3
+
+##mean-centering numeric variables involved in interaction
+Medicaid$access_c <- Medicaid$access - mean(Medicaid$access) 
+Medicaid$visits_c <- Medicaid$visits - mean(Medicaid$visits) 
+
+
+##linear regression model, response variable from the predictor variable, data=*dataset*
+Medicaid_lm<-lm(health1 ~ visits_c*access_c, data=Medicaid) 
+summary(Medicaid_lm)
+
+#plot
+library(interactions)
+interact_plot(Medicaid_lm, pred = visits_c , modx = access_c, plot.points = TRUE)
+
+##assumptions
+
+##homeoskedacity/linearity
+resids<-Medicaid_lm$residuals
+fitvals<-Medicaid_lm$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, col="red")
+
+##homeoskedacity
+    ##p value < 0.05 = we do not have homodasticity (we have unequal variance; we have not met the assumption; this is bad)
+library(lmtest)
+library(sandwich)
+bptest(Medicaid_lm)
+
+
+##normality
+ggplot()+geom_histogram(aes(resids),bins=20)
+
+
+##uncorrected SEs
+summary(Medicaid_lm)$coef
+#corrected SEs
+coeftest(Medicaid_lm, vcov = vcovHC(Medicaid_lm))
+
+
+```
+
+The predicted value for the first principal component of health status ("health1") for an average number of doctor visits ("visits_c") and an average availability of health services ("access_c") is 0.001.
+Controlling for "access", for every 1-unit increase in "visits", "health1" goes up by a value of 0.119 on average. 
+Controlling for "visits_c", for every 1-unit increase in "access_c", "health 1" decreases by a value of 0.676 on average. 
+The effect of the number of visits on health1 value differs as a function of the availability of health services. As "visits" goes up by one unit, the slope of "access_c" decreases by 0.055 on average. Likewise, as "access" goes up by one unit, the slope of "visits_c" goes down by 0.055 on average. 
+
+The points fan out as the "fitvals" on the x-axis increase, meaning the assumption of linearity as well as that of homoskedacity are both not met, which, for the homoskedacity assumption, is confirmed by the bp test (p-value = 1.461e-10 < 0.05). It's also clear that the normality assumption is not met, based on the skewed plot represented by the data's histogram. After recomputing the regression using heteroskedasticity robust standard errors, the standard errors were increased, causing the t-statistics to decrease and p value to increase (above 0.05 so that the assumption of heteroskedacity is met). 
+
+The R-squared value states that 8.03% of the variation in health1 is explained by the model; however, the adjusted R-squared value, which takes into account the probability of chance associations occurring for each of the variables, states that 7.75% of the variation in health1 is explained by the model.The adjusted R-squared is likely a more accurate account of the variation explained by the model because it penalizes that value for the probability of chance. However, there are only 2 prediction variables in the model, so the difference between the R-sqaured value and the adjusted R-sqaured value is minimal.
+
+```{R}
+#4
+
+#from part 3
+resids<-Medicaid_lm$residuals
+fitvals<-Medicaid_lm$fitted.values
+
+
+##bootstrapping
+ resid_resamp<-replicate(5000,{
+    new_resids<-sample(resids,replace=TRUE) #resample resids w/ replacement
+    Medicaid$new_y<-fitvals+new_resids #add new resids to yhats to get new "data"
+    refit<-lm(new_y~visits_c*access_c,data=Medicaid) #refit model
+    coef(refit) #save coefficient estimates (b0, b1, etc)
+}) 
+
+## Estimated SEs
+resid_resamp%>%t%>%as.data.frame%>%summarize_all(sd)
+##uncorrected SEs
+summary(Medicaid_lm)$coef
+#corrected SEs
+coeftest(Medicaid_lm, vcov = vcovHC(Medicaid_lm))
+
+
+
+```
+
+The three types of standard errors calculated thus far (original SEs, robust SEs, and bootstrapped SEs) are very comparable, varying only slightly in value from one another. The bootstrapped standard error for the intercept as well as that for the interaction between the prediction variables ("visits_c:access_c") were in-between those of the original SEs and robust SEs; however, the bootstrapped SEs were lowest of the three types of SEs calculated for the remaining two coeffiecients: "visits_c" and "access_c". The bootstrapped p-values reflected the same pattern of change as the bootstrapped SEs. Overall, the most conservative model was created by the robust SEs. 
+
+
+
+```{R}
+#5
+
+#adjusting binary variable
+Medicaid <- Medicaid %>% mutate(enroll_bi=ifelse(enroll=="yes",1,0))
+
+
+##logistic regression model predicting a binary variable from 2 other variables
+bi_fit<-glm(enroll_bi ~ health1+access, data=Medicaid, family="binomial")
+
+#predicted log-odds
+coeftest(bi_fit)
+#predicted odds
+exp(coeftest(bi_fit))
+
+
+#predicted probability for enrollment
+prob<-predict(bi_fit,type="response")
+pred<-ifelse(prob>.5,1,0)
+
+##confusion matrix
+table(prediction=pred, truth=Medicaid$enroll_bi)%>%addmargins
+ 
+
+library(knitr)
+opts_chunk$set(fig.align="center", fig.height=5, message=FALSE, warning=FALSE, fig.width=8, tidy.opts=list(width.cutoff=60),tidy=TRUE)
+
+#Classification diagnostics function
+class_diag<-function(probs,truth){
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE){
+    truth<-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+
+class_diag(prob, Medicaid$enroll_bi)
+
+
+
+##density plot 
+Medicaid$logit<-predict(bi_fit, type="link")
+
+Medicaid %>% mutate(enrolled=factor(enroll_bi,levels=c("0","1"))) %>% 
+ggplot(aes(logit, fill=enrolled))+geom_density(alpha=.3)+ 
+  geom_vline(xintercept=0,lty=2)
+
+
+##ROC curve
+
+library(plotROC) 
+
+ggplot(Medicaid)+geom_roc(aes(d=enroll_bi,m=prob), n.cuts=0)
+MedROC<-ggplot(Medicaid)+geom_roc(aes(d=enroll_bi,m=prob), n.cuts=0)
+calc_auc(MedROC)
+```
+
+If the value of the first principle component value for health status ("health1") and the value representing the availability of health services ("access") are both 0, the predicted odds of enrollment in a demonstration program are, significantly, 0.3859, or 38.59%. 
+Controlling for the availability of health services ("access"), for every 1-unit increase in the first principal compenent value for health status ("health1"), the predicted odds of enrollment in a demonstration program decrease by a factor of 0.9755, however, this value is not significant. 
+Controlling for the first principal component value for health status ("health1"), for every 1-unit increase in the availability of health services ("access"), the predicted odds of being enrolled in a demonstration program increase significantly by a factor of 10.10.  
+
+-The accuracy of the logistic regression is 0.6285, meaning 62.85% of the particpants of the study were correctly classified as enrolled or not enrolled based on the predictive variables "health1" and "access". 
+-The sensitivity is 0.6143, meaning 61.43% of the enrollees were correctly predicted as such when "health1" and "access" were used as predictive variables. 
+-The specificity is 0.6423, meaning 64.23% of the non-enrollees were correctly predicted as such based on the predictive variables "health1" and "access".
+-The precision is 0.6245, meaning 62.45% of the participants predicted to be enrolled, were actually enrolled when the predictive variables were "health1" and "access". 
+-The area under the curve (AUC) of the logistic regression is 0.6255, which means that the model poorly predicts the sample data when using only "health1" and "access" as predictive variables.
+
+
+The ROC curve plots the sensitivity (TPR) on the y axis and the 1-specificity (FPR) on the x axis, therefore, the perfect, and ideal, "curve" looks like a right angle, representing perfect predictions of positive and negative results of the response variable. The ROC formed by this model, however, is almost a linear line showing a y=x relationship. This means that the model is not a good predictor of the response variable, and is nearly the same as a 50/50 (chance) guess.
+
+
+```{R}
+#6
+library(glmnet)
+
+##logistic regression model predicting a binary variable from all other variables
+Medicaid <- Medicaid %>% select(-enroll, -1, -logit, -access_c, -visits_c)
+all_bifit <- glm(enroll_bi ~., data=Medicaid, family="binomial")
+
+prob2<-predict(all_bifit,type="response")
+class_diag(prob2,Medicaid$enroll_bi)
+
+
+
+##CV
+
+k=10
+
+data<-Medicaid[sample(nrow(Medicaid)),] #randomly order rows
+folds<-cut(seq(1:nrow(Medicaid)),breaks=k,labels=F) #create 10 folds
+
+diags<-NULL
+for(i in 1:k){
+  ## Create training and test sets
+  train<-data[folds!=i,] 
+  test<-data[folds==i,]
+  truth<-test$enroll_bi
+  
+  ## Train model on training set
+  fit<-glm(enroll_bi~.,data=train,family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+  
+  ## Test model on test set (save all k results)
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)
+
+
+
+##lasso
+
+resp<-as.matrix(Medicaid$enroll_bi) #grab response
+
+##it's a good idea to scale this
+lasso_preds<-model.matrix(enroll_bi~.,data=Medicaid, response="binomial", scale)[,-1] 
+lasso_preds<-scale(lasso_preds)
+
+
+##always the first step of lasso
+    #picks an optimal value for lambda through 10-fold CV
+lasso_cv<-cv.glmnet(lasso_preds,resp, family="binomial")
+
+lasso_fit<-glmnet(lasso_preds,resp,family="binomial",lambda=lasso_cv$lambda.1se)
+
+coef(lasso_fit)
+
+
+##CV2 
+k=10
+
+data<-Medicaid[sample(nrow(Medicaid)),] #randomly order rows
+folds<-cut(seq(1:nrow(Medicaid)),breaks=k,labels=F) #create 10 folds
+
+diags<-NULL
+for(i in 1:k){
+  ## Create training and test sets
+  train<-data[folds!=i,] 
+  test<-data[folds==i,]
+  truth<-test$enroll_bi
+  
+  ## Train model on training set
+  fit<-glm(enroll_bi~access,data=train,family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+  
+  ## Test model on test set (save all k results)
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)
+
+
+```
+
+-The accuracy of the logistic regression is 0.5984, meaning 59.84% of the particpants of the study were correctly classified as enrolled or not enrolled when the binary response variable was predicted from ALL of the other variables.
+-The sensitivity is 0.5714, meaning 57.14% of the enrollees were correctly predicted as such when the binary response variable was predicted from ALL of the other variables. 
+-The specificity is 0.6423, meaning 64.23% of the non-enrollees were correctly predicted as such when the binary response variable was predicted from ALL of the other variables.
+-The precision is 0.5957, meaning 59.57% of the participants predicted to be enrolled, were actually enrolled when the binary response variable was predicted from ALL of the other variables. 
+-The area under the curve of the logistic regression is 0.6501, which means that the model poorly predicts the sample data when using all of the variables as predictors for the enrollment variable. Increasing the number of prediction variables from only "health1" and "access" to all of the variables in the model besides the response("enroll_bi") improved its predictions, but only slightly, and not significantly enough to improve upon its poor results.
+
+The area under the curve (AUC) dropped from the in-sample performance (0.6501) to the cross validation performance (0.6153), which means the in-sample model is over-fitting (the model is so complex that it's modelling noise in the data). This value for AUC computed by cross validation has made clear that the model is going to perform poorly on new data. 
+
+The only variable that was retained after performing LASSO on the logistic regression model was "access" ("schoolnone" is retained sometimes after performing LASSO, likely due to it being so close to zero in a model that's so complex; therefore, upon the advice given in the Discussion Board, I've chosen to be conservative and keep only the variables that don't move much). The positive coefficient value attributed to "access" indicates that having more availability to health services, or more "access", increases the likelihood that the person is enrolled in a demonstration program ("enroll_bi"=1). By not returning any of the other variables, the LASSO results are insinuating that they don't have an impact the likelihood of being enrolled. 
+
+After performing a 10-fold CV using only the variable lasso selected ("access"), the model's out-of-sample AUC (0.6248) has appeared slighlty better than that that resulted from including all of the variables in the model (0.6153). However, the out-of-sample is still less than the AUC resulting from the in-sample logistic regressions, which thereby supports the conclusion that the in-sample model is over-fitting. Overall, the AUCs computed across all of the logistic models have shown only slight variation from each other - all remaining between 0.6 and 0.7, meaning their performance as a predictive model is poor.   
+

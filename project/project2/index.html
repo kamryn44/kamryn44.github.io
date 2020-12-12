@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Kamryn Scamperle" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Project 2 - Medicaid Enrollment in 1986</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/post/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project/project2/">Project 2 - Medicaid Enrollment in 1986</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         November 23, 2020 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+
+
+<p><strong>Introduction</strong></p>
+<p>This dataset (from the 1986 Medicaid Consumer Survey) is comprised of 996 people (observations) in California who are eligible to claim Medicaid benefits. The study participants have been split into two groups: one group contains people who are enrolled in a managed care demonstration program and the other group is a fee-for-service comparison group of non-enrollees. There are a total of 14 variables for each observed participant, some of which include: “visits” for the number of visits to the doctor they made in 1986; “age” for the age of the respondent; “income” indicating the annual household income (an averaged range); “health1”, which represents the first principal component (divided by 1000)of three health-status variables: functional limitations, acute conditions, and chronic condition; “access”, indicative of the availability of services for the respondent (0 = low access, 1 = high access); “gender”, with options of female or male; and “enroll”, which is a factor stating whether the individual is or is not enrolled in a demonstration program. Overall, these variables (and the few not listed) were analyzed upon the binary variable “enroll” so as to find out if any of them were predictive or indicative of whether an individual is enrolled in a demonstration program. This could lead to a better understanding of the differences between the characteristics and effects of a fee-for-service-based health care system versus a health care system comprised of government-run programs.</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+## ✓ tibble  3.0.4     ✓ dplyr   1.0.2
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.4.0     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(readxl)
+Medicaid &lt;- read_excel(&quot;Medicaid1986.xls&quot;)</code></pre>
+<pre><code>## New names:
+## * `` -&gt; ...1</code></pre>
+<pre class="r"><code>#1
+
+
+Medicaid&lt;-Medicaid %&gt;% mutate(school=case_when(school&lt;=0~&quot;none&quot;,
+                                               school&lt;=10 ~&quot;below hs&quot;,
+                                               school&lt;=13~&quot;hs&quot;,
+                                               school&lt;=18~&quot;college&quot;))
+
+##manova
+manova(cbind(visits, exposure, children, age, income, health1, health2, access)~school, data=Medicaid)</code></pre>
+<pre><code>## Call:
+##    manova(cbind(visits, exposure, children, age, income, health1, 
+##     health2, access) ~ school, data = Medicaid)
+## 
+## Terms:
+##                   school Residuals
+## visits              36.0   11160.2
+## exposure           396.4   82816.0
+## children            19.2    2247.5
+## age              85444.6  534510.2
+## income             173.3   12941.6
+## health1             12.4    2042.1
+## health2              1.5     543.7
+## access               0.0      33.8
+## Deg. of Freedom        3       992
+## 
+## Residual standard errors: 3.354131 9.13695 1.505186 23.21251 3.611927 1.434773 0.7403172 0.184656
+## Estimated effects may be unbalanced</code></pre>
+<pre class="r"><code>medicaid_manova &lt;- manova(cbind(visits, exposure, children, age, income, health1, health2, access)~school, data=Medicaid)
+
+summary(medicaid_manova)</code></pre>
+<pre><code>##            Df  Pillai approx F num Df den Df    Pr(&gt;F)    
+## school      3 0.19202   8.4367     24   2961 &lt; 2.2e-16 ***
+## Residuals 992                                             
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>##anova
+summary.aov(medicaid_manova)</code></pre>
+<pre><code>##  Response visits :
+##              Df Sum Sq Mean Sq F value Pr(&gt;F)
+## school        3     36  12.009  1.0674  0.362
+## Residuals   992  11160  11.250               
+## 
+##  Response exposure :
+##              Df Sum Sq Mean Sq F value Pr(&gt;F)
+## school        3    396 132.135  1.5828 0.1919
+## Residuals   992  82816  83.484               
+## 
+##  Response children :
+##              Df  Sum Sq Mean Sq F value  Pr(&gt;F)  
+## school        3   19.18  6.3920  2.8214 0.03787 *
+## Residuals   992 2247.46  2.2656                  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response age :
+##              Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## school        3  85445 28481.5  52.859 &lt; 2.2e-16 ***
+## Residuals   992 534510   538.8                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response income :
+##              Df  Sum Sq Mean Sq F value   Pr(&gt;F)   
+## school        3   173.3  57.777  4.4287 0.004214 **
+## Residuals   992 12941.6  13.046                    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response health1 :
+##              Df  Sum Sq Mean Sq F value Pr(&gt;F)
+## school        3   12.35  4.1168  1.9998 0.1124
+## Residuals   992 2042.11  2.0586               
+## 
+##  Response health2 :
+##              Df Sum Sq Mean Sq F value Pr(&gt;F)
+## school        3   1.51 0.50329  0.9183 0.4314
+## Residuals   992 543.68 0.54807               
+## 
+##  Response access :
+##              Df Sum Sq  Mean Sq F value Pr(&gt;F)
+## school        3  0.022 0.007487  0.2196 0.8828
+## Residuals   992 33.825 0.034098</code></pre>
+<pre class="r"><code>#post-hoc tests
+pairwise.t.test(Medicaid$children,Medicaid$school, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  Medicaid$children and Medicaid$school 
+## 
+##         below hs college hs    
+## college 0.8746   -       -     
+## hs      0.0069   0.0608  -     
+## none    0.8042   0.7505  0.2083
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(Medicaid$age,Medicaid$school, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  Medicaid$age and Medicaid$school 
+## 
+##         below hs college hs     
+## college 4.7e-07  -       -      
+## hs      &lt; 2e-16  0.0520  -      
+## none    0.0048   3.3e-09 &lt; 2e-16
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(Medicaid$income,Medicaid$school, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  Medicaid$income and Medicaid$school 
+## 
+##         below hs college hs     
+## college 0.65069  -       -      
+## hs      0.04603  0.40903 -      
+## none    0.01520  0.01986 0.00047
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>##assumptions 
+library(rstatix)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;rstatix&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter</code></pre>
+<pre class="r"><code>group &lt;- Medicaid$school
+DVs &lt;- Medicaid %&gt;% select(visits, exposure, children, age, income, health1, health2, access)
+
+#Test multivariate normality for each group (null: assumption met)
+sapply(split(DVs,group), mshapiro_test)</code></pre>
+<pre><code>##           below hs     college    hs           none        
+## statistic 0.5724765    0.7239318  0.5248222    0.8940428   
+## p.value   1.451626e-31 9.2792e-13 2.169215e-30 1.241322e-05</code></pre>
+<pre class="r"><code>#If any p&lt;.05, stop (assumption violated). If not, test homogeneity of covariance matrices
+
+#Box&#39;s M test (null: assumption met)
+box_m(DVs, group)</code></pre>
+<pre><code>## # A tibble: 1 x 4
+##   statistic     p.value parameter method                                        
+##       &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;                                         
+## 1      202. 0.000000104       108 Box&#39;s M-test for Homogeneity of Covariance Ma…</code></pre>
+<p>The p-value of the MANOVA test was 2.2e-16, which means at least one of the numeric variables significantly differs from the others by “school”. After following up this result with one-way ANOVAs for each of these variables, only “children”, “age”, and “income” reported p-values &lt; 0.05, which, with the significance level left unadjusted, meant that for each of them, at least one site differed significantly.</p>
+<p>From all of the MANOVA, ANOVA, and pairwise t-tests, a total of 27 hypothesis tests have been performed at this point. This means that, overall, there’s a 135% chance that at least one Type I error was made. However, using the Bonferroni method the chance of a Type I error could be kepy at 5%, by adjusting the significance level to 0.00185 (0.05 / 27). After making the adjustment, the post hoc test showed there is no significant difference in the number of children between each of the levels of school; however, there is a significant difference in age between people with a level of education below high school (below hs) and people in college, between below high school and high school, between college level and people with no education (“none”), and people of high school level and people with none. The only significant difference in income across the different levels of completed schooling was between the high school level and people with no education (“none”).</p>
+<p>The MANOVA test assumes the data is composed of random samples that are independent observations, that the dependent variables have multivariate normality, that there is equal variance (homogeneity) for each dependent variable and equal covariance between any two of the dependent variables, that there is a linear relationship among the dependent variables, that there are no extreme univariate or multivariate outliers, and that there is no multicollinearity, meaning the dependent variables are not correlated. Because each of the p-values were below 0.05 after testing for multivariate normality, it’s clear that the assumptions were violated.</p>
+<pre class="r"><code>#2
+
+##distributions are normal, so I can perform a t-test
+ggplot(Medicaid,aes(access,fill=gender))+geom_histogram(bins=6.5)+
+  facet_wrap(~gender,ncol=2)+theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>##observed test statistic (mean difference) = 0.0100414
+Medicaid%&gt;%group_by(gender)%&gt;%
+  summarize(means=mean(access))%&gt;%summarize(`mean_diff`=diff(means))</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   mean_diff
+##       &lt;dbl&gt;
+## 1    0.0100</code></pre>
+<pre class="r"><code>##randomization test of differences in means
+rand_dist&lt;-vector()
+for(i in 1:5000){
+  new&lt;-data.frame(access=sample(Medicaid$access),gender=Medicaid$gender)
+  rand_dist[i]&lt;-mean(new[new$gender==&quot;female&quot;,]$access) - 
+    mean(new[new$gender==&quot;male&quot;,]$access)}
+
+{hist(rand_dist,main=&quot;&quot;,ylab=&quot;&quot;); abline(v = c(-0.0100414, 0.0100414),col=&quot;red&quot;)}</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<pre class="r"><code>##two-tailed p-value 
+mean(rand_dist&gt;0.0100414 | rand_dist&lt; -0.0100414)</code></pre>
+<pre><code>## [1] 0.533</code></pre>
+<p>A randomization test testing for the mean difference of availability of services (“access”) between females and males (“gender”) was performed:</p>
+<p>H0: The mean availability of services for males and females is the same.
+HA: The mean availability of services for males and females is different.</p>
+<p>The observed test statistic for the mean difference in “access” between males and females is 0.010014. The two-tailed p-value (0.5308) represents the probability of observing a mean difference between females and males as extreme as that which was found, meaning how likely it would be to get a mean difference of such size if the “access” values were each paired randomly with a “gender” group. Because the p-value is greater than 0.05, we fail to reject the null hypothesis that the mean availability of services (“access”) for males and females (“gender”) is the same.</p>
+<pre class="r"><code>#3
+
+##mean-centering numeric variables involved in interaction
+Medicaid$access_c &lt;- Medicaid$access - mean(Medicaid$access) 
+Medicaid$visits_c &lt;- Medicaid$visits - mean(Medicaid$visits) 
+
+
+##linear regression model, response variable from the predictor variable, data=*dataset*
+Medicaid_lm&lt;-lm(health1 ~ visits_c*access_c, data=Medicaid) 
+summary(Medicaid_lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = health1 ~ visits_c * access_c, data = Medicaid)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.1986 -1.0386 -0.2529  0.8129  5.9543 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)        0.0009847  0.0437477   0.023  0.98205    
+## visits_c           0.1185798  0.0133815   8.861  &lt; 2e-16 ***
+## access_c          -0.6759206  0.2373204  -2.848  0.00449 ** 
+## visits_c:access_c -0.0548461  0.0682623  -0.803  0.42190    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1.38 on 992 degrees of freedom
+## Multiple R-squared:  0.08032,    Adjusted R-squared:  0.07754 
+## F-statistic: 28.88 on 3 and 992 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>#plot
+library(interactions)
+interact_plot(Medicaid_lm, pred = visits_c , modx = access_c, plot.points = TRUE)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>##assumptions
+
+##homeoskedacity/linearity
+resids&lt;-Medicaid_lm$residuals
+fitvals&lt;-Medicaid_lm$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, col=&quot;red&quot;)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<pre class="r"><code>##homeoskedacity
+    ##p value &lt; 0.05 = we do not have homodasticity (we have unequal variance; we have not met the assumption; this is bad)
+library(lmtest)</code></pre>
+<pre><code>## Loading required package: zoo</code></pre>
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric</code></pre>
+<pre class="r"><code>library(sandwich)
+bptest(Medicaid_lm)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  Medicaid_lm
+## BP = 48.769, df = 3, p-value = 1.461e-10</code></pre>
+<pre class="r"><code>##normality
+ggplot()+geom_histogram(aes(resids),bins=20)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
+<pre class="r"><code>##uncorrected SEs
+summary(Medicaid_lm)$coef</code></pre>
+<pre><code>##                        Estimate Std. Error     t value     Pr(&gt;|t|)
+## (Intercept)        0.0009846995 0.04374773  0.02250859 9.820468e-01
+## visits_c           0.1185797648 0.01338152  8.86145937 3.590791e-18
+## access_c          -0.6759205791 0.23732043 -2.84813481 4.488464e-03
+## visits_c:access_c -0.0548461313 0.06826226 -0.80346197 4.219002e-01</code></pre>
+<pre class="r"><code>#corrected SEs
+coeftest(Medicaid_lm, vcov = vcovHC(Medicaid_lm))</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##                     Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)        0.0009847  0.0444782  0.0221 0.9823416    
+## visits_c           0.1185798  0.0353061  3.3586 0.0008131 ***
+## access_c          -0.6759206  0.2390433 -2.8276 0.0047841 ** 
+## visits_c:access_c -0.0548461  0.1697920 -0.3230 0.7467485    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>The predicted value for the first principal component of health status (“health1”) for an average number of doctor visits (“visits_c”) and an average availability of health services (“access_c”) is 0.001.
+Controlling for “access”, for every 1-unit increase in “visits”, “health1” goes up by a value of 0.119 on average.
+Controlling for “visits_c”, for every 1-unit increase in “access_c”, “health 1” decreases by a value of 0.676 on average.
+The effect of the number of visits on health1 value differs as a function of the availability of health services. As “visits” goes up by one unit, the slope of “access_c” decreases by 0.055 on average. Likewise, as “access” goes up by one unit, the slope of “visits_c” goes down by 0.055 on average.</p>
+<p>The points fan out as the “fitvals” on the x-axis increase, meaning the assumption of linearity as well as that of homoskedacity are both not met, which, for the homoskedacity assumption, is confirmed by the bp test (p-value = 1.461e-10 &lt; 0.05). It’s also clear that the normality assumption is not met, based on the skewed plot represented by the data’s histogram. After recomputing the regression using heteroskedasticity robust standard errors, the standard errors were increased, causing the t-statistics to decrease and p value to increase (above 0.05 so that the assumption of heteroskedacity is met).</p>
+<p>The R-squared value states that 8.03% of the variation in health1 is explained by the model; however, the adjusted R-squared value, which takes into account the probability of chance associations occurring for each of the variables, states that 7.75% of the variation in health1 is explained by the model.The adjusted R-squared is likely a more accurate account of the variation explained by the model because it penalizes that value for the probability of chance. However, there are only 2 prediction variables in the model, so the difference between the R-sqaured value and the adjusted R-sqaured value is minimal.</p>
+<pre class="r"><code>#4
+
+#from part 3
+resids&lt;-Medicaid_lm$residuals
+fitvals&lt;-Medicaid_lm$fitted.values
+
+
+##bootstrapping
+ resid_resamp&lt;-replicate(5000,{
+    new_resids&lt;-sample(resids,replace=TRUE) #resample resids w/ replacement
+    Medicaid$new_y&lt;-fitvals+new_resids #add new resids to yhats to get new &quot;data&quot;
+    refit&lt;-lm(new_y~visits_c*access_c,data=Medicaid) #refit model
+    coef(refit) #save coefficient estimates (b0, b1, etc)
+}) 
+
+## Estimated SEs
+resid_resamp%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept)   visits_c  access_c visits_c:access_c
+## 1   0.0432015 0.01335479 0.2396838         0.0686093</code></pre>
+<pre class="r"><code>##uncorrected SEs
+summary(Medicaid_lm)$coef</code></pre>
+<pre><code>##                        Estimate Std. Error     t value     Pr(&gt;|t|)
+## (Intercept)        0.0009846995 0.04374773  0.02250859 9.820468e-01
+## visits_c           0.1185797648 0.01338152  8.86145937 3.590791e-18
+## access_c          -0.6759205791 0.23732043 -2.84813481 4.488464e-03
+## visits_c:access_c -0.0548461313 0.06826226 -0.80346197 4.219002e-01</code></pre>
+<pre class="r"><code>#corrected SEs
+coeftest(Medicaid_lm, vcov = vcovHC(Medicaid_lm))</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##                     Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)        0.0009847  0.0444782  0.0221 0.9823416    
+## visits_c           0.1185798  0.0353061  3.3586 0.0008131 ***
+## access_c          -0.6759206  0.2390433 -2.8276 0.0047841 ** 
+## visits_c:access_c -0.0548461  0.1697920 -0.3230 0.7467485    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>The three types of standard errors calculated thus far (original SEs, robust SEs, and bootstrapped SEs) are very comparable, varying only slightly in value from one another. The bootstrapped standard error for the intercept as well as that for the interaction between the prediction variables (“visits_c:access_c”) were in-between those of the original SEs and robust SEs; however, the bootstrapped SEs were lowest of the three types of SEs calculated for the remaining two coeffiecients: “visits_c” and “access_c”. The bootstrapped p-values reflected the same pattern of change as the bootstrapped SEs. Overall, the most conservative model was created by the robust SEs.</p>
+<pre class="r"><code>#5
+
+#adjusting binary variable
+Medicaid &lt;- Medicaid %&gt;% mutate(enroll_bi=ifelse(enroll==&quot;yes&quot;,1,0))
+
+
+##logistic regression model predicting a binary variable from 2 other variables
+bi_fit&lt;-glm(enroll_bi ~ health1+access, data=Medicaid, family=&quot;binomial&quot;)
+
+#predicted log-odds
+coeftest(bi_fit)</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##              Estimate Std. Error z value  Pr(&gt;|z|)    
+## (Intercept) -0.954810   0.159962 -5.9690 2.388e-09 ***
+## health1     -0.024768   0.045261 -0.5472    0.5842    
+## access       2.312182   0.365465  6.3267 2.505e-10 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>#predicted odds
+exp(coeftest(bi_fit))</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##             Estimate Std. Error  z value Pr(&gt;|z|)
+## (Intercept)  0.38489    1.17347   0.0026    1.000
+## health1      0.97554    1.04630   0.5785    1.794
+## access      10.09643    1.44118 559.3027    1.000</code></pre>
+<pre class="r"><code>#predicted probability for enrollment
+prob&lt;-predict(bi_fit,type=&quot;response&quot;)
+pred&lt;-ifelse(prob&gt;.5,1,0)
+
+##confusion matrix
+table(prediction=pred, truth=Medicaid$enroll_bi)%&gt;%addmargins</code></pre>
+<pre><code>##           truth
+## prediction   0   1 Sum
+##        0   325 189 514
+##        1   181 301 482
+##        Sum 506 490 996</code></pre>
+<pre class="r"><code>library(knitr)
+opts_chunk$set(fig.align=&quot;center&quot;, fig.height=5, message=FALSE, warning=FALSE, fig.width=8, tidy.opts=list(width.cutoff=60),tidy=TRUE)
+
+#Classification diagnostics function
+class_diag&lt;-function(probs,truth){
+  tab&lt;-table(factor(probs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE){
+    truth&lt;-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord&lt;-order(probs, decreasing=TRUE)
+  probs &lt;- probs[ord]; truth &lt;- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup&lt;-c(probs[-1]&gt;=probs[-length(probs)], FALSE)
+  TPR&lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+  
+  n &lt;- length(TPR)
+  auc&lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+
+class_diag(prob, Medicaid$enroll_bi)</code></pre>
+<pre><code>##         acc      sens      spec       ppv        f1       auc
+## 1 0.6285141 0.6142857 0.6422925 0.6244813 0.6193416 0.6255384</code></pre>
+<pre class="r"><code>##density plot 
+Medicaid$logit&lt;-predict(bi_fit, type=&quot;link&quot;)
+
+Medicaid %&gt;% mutate(enrolled=factor(enroll_bi,levels=c(&quot;0&quot;,&quot;1&quot;))) %&gt;% 
+ggplot(aes(logit, fill=enrolled))+geom_density(alpha=.3)+ 
+  geom_vline(xintercept=0,lty=2)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>##ROC curve
+
+library(plotROC) 
+
+ggplot(Medicaid)+geom_roc(aes(d=enroll_bi,m=prob), n.cuts=0)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<pre class="r"><code>MedROC&lt;-ggplot(Medicaid)+geom_roc(aes(d=enroll_bi,m=prob), n.cuts=0)
+calc_auc(MedROC)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.6255384</code></pre>
+<p>If the value of the first principle component value for health status (“health1”) and the value representing the availability of health services (“access”) are both 0, the predicted odds of enrollment in a demonstration program are, significantly, 0.3859, or 38.59%.
+Controlling for the availability of health services (“access”), for every 1-unit increase in the first principal compenent value for health status (“health1”), the predicted odds of enrollment in a demonstration program decrease by a factor of 0.9755, however, this value is not significant.
+Controlling for the first principal component value for health status (“health1”), for every 1-unit increase in the availability of health services (“access”), the predicted odds of being enrolled in a demonstration program increase significantly by a factor of 10.10.</p>
+<p>-The accuracy of the logistic regression is 0.6285, meaning 62.85% of the particpants of the study were correctly classified as enrolled or not enrolled based on the predictive variables “health1” and “access”.
+-The sensitivity is 0.6143, meaning 61.43% of the enrollees were correctly predicted as such when “health1” and “access” were used as predictive variables.
+-The specificity is 0.6423, meaning 64.23% of the non-enrollees were correctly predicted as such based on the predictive variables “health1” and “access”.
+-The precision is 0.6245, meaning 62.45% of the participants predicted to be enrolled, were actually enrolled when the predictive variables were “health1” and “access”.
+-The area under the curve (AUC) of the logistic regression is 0.6255, which means that the model poorly predicts the sample data when using only “health1” and “access” as predictive variables.</p>
+<p>The ROC curve plots the sensitivity (TPR) on the y axis and the 1-specificity (FPR) on the x axis, therefore, the perfect, and ideal, “curve” looks like a right angle, representing perfect predictions of positive and negative results of the response variable. The ROC formed by this model, however, is almost a linear line showing a y=x relationship. This means that the model is not a good predictor of the response variable, and is nearly the same as a 50/50 (chance) guess.</p>
+<pre class="r"><code>#6
+library(glmnet)
+
+##logistic regression model predicting a binary variable from all other variables
+Medicaid &lt;- Medicaid %&gt;% select(-enroll, -1, -logit, -access_c, -visits_c)
+all_bifit &lt;- glm(enroll_bi ~., data=Medicaid, family=&quot;binomial&quot;)
+
+prob2&lt;-predict(all_bifit,type=&quot;response&quot;)
+class_diag(prob2,Medicaid$enroll_bi)</code></pre>
+<pre><code>##         acc      sens      spec       ppv        f1       auc
+## 1 0.5983936 0.5714286 0.6245059 0.5957447 0.5833333 0.6500807</code></pre>
+<pre class="r"><code>##CV
+
+k=10
+
+data&lt;-Medicaid[sample(nrow(Medicaid)),] #randomly order rows
+folds&lt;-cut(seq(1:nrow(Medicaid)),breaks=k,labels=F) #create 10 folds
+
+diags&lt;-NULL
+for(i in 1:k){
+  ## Create training and test sets
+  train&lt;-data[folds!=i,] 
+  test&lt;-data[folds==i,]
+  truth&lt;-test$enroll_bi
+  
+  ## Train model on training set
+  fit&lt;-glm(enroll_bi~.,data=train,family=&quot;binomial&quot;)
+  probs&lt;-predict(fit,newdata = test,type=&quot;response&quot;)
+  
+  ## Test model on test set (save all k results)
+  diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv        f1       auc
+## 1 0.5552121 0.5235236 0.5867332 0.5497315 0.5340034 0.6138099</code></pre>
+<pre class="r"><code>##lasso
+
+resp&lt;-as.matrix(Medicaid$enroll_bi) #grab response
+
+##it&#39;s a good idea to scale this
+lasso_preds&lt;-model.matrix(enroll_bi~.,data=Medicaid, response=&quot;binomial&quot;, scale)[,-1] 
+lasso_preds&lt;-scale(lasso_preds)
+
+
+##always the first step of lasso
+    #picks an optimal value for lambda through 10-fold CV
+lasso_cv&lt;-cv.glmnet(lasso_preds,resp, family=&quot;binomial&quot;)
+
+lasso_fit&lt;-glmnet(lasso_preds,resp,family=&quot;binomial&quot;,lambda=lasso_cv$lambda.1se)
+
+coef(lasso_fit)</code></pre>
+<pre><code>## 16 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                         s0
+## (Intercept)    -0.03279516
+## visits          .         
+## exposure        .         
+## children        .         
+## age             .         
+## income          .         
+## health1         .         
+## health2         .         
+## access          0.25338158
+## marriedyes      .         
+## gendermale      .         
+## ethnicityother  .         
+## schoolcollege   .         
+## schoolhs        .         
+## schoolnone      .         
+## programssi      .</code></pre>
+<pre class="r"><code>##CV2 
+k=10
+
+data&lt;-Medicaid[sample(nrow(Medicaid)),] #randomly order rows
+folds&lt;-cut(seq(1:nrow(Medicaid)),breaks=k,labels=F) #create 10 folds
+
+diags&lt;-NULL
+for(i in 1:k){
+  ## Create training and test sets
+  train&lt;-data[folds!=i,] 
+  test&lt;-data[folds==i,]
+  truth&lt;-test$enroll_bi
+  
+  ## Train model on training set
+  fit&lt;-glm(enroll_bi~access,data=train,family=&quot;binomial&quot;)
+  probs&lt;-predict(fit,newdata = test,type=&quot;response&quot;)
+  
+  ## Test model on test set (save all k results)
+  diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)</code></pre>
+<pre><code>##         acc      sens     spec       ppv        f1       auc
+## 1 0.6215657 0.6085775 0.638845 0.6209518 0.6103047 0.6226172</code></pre>
+<p>-The accuracy of the logistic regression is 0.5984, meaning 59.84% of the particpants of the study were correctly classified as enrolled or not enrolled when the binary response variable was predicted from ALL of the other variables.
+-The sensitivity is 0.5714, meaning 57.14% of the enrollees were correctly predicted as such when the binary response variable was predicted from ALL of the other variables.
+-The specificity is 0.6423, meaning 64.23% of the non-enrollees were correctly predicted as such when the binary response variable was predicted from ALL of the other variables.
+-The precision is 0.5957, meaning 59.57% of the participants predicted to be enrolled, were actually enrolled when the binary response variable was predicted from ALL of the other variables.
+-The area under the curve of the logistic regression is 0.6501, which means that the model poorly predicts the sample data when using all of the variables as predictors for the enrollment variable. Increasing the number of prediction variables from only “health1” and “access” to all of the variables in the model besides the response(“enroll_bi”) improved its predictions, but only slightly, and not significantly enough to improve upon its poor results.</p>
+<p>The area under the curve (AUC) dropped from the in-sample performance (0.6501) to the cross validation performance (0.6153), which means the in-sample model is over-fitting (the model is so complex that it’s modelling noise in the data). This value for AUC computed by cross validation has made clear that the model is going to perform poorly on new data.</p>
+<p>The only variable that was retained after performing LASSO on the logistic regression model was “access” (“schoolnone” is retained sometimes after performing LASSO, likely due to it being so close to zero in a model that’s so complex; therefore, upon the advice given in the Discussion Board, I’ve chosen to be conservative and keep only the variables that don’t move much). The positive coefficient value attributed to “access” indicates that having more availability to health services, or more “access”, increases the likelihood that the person is enrolled in a demonstration program (“enroll_bi”=1). By not returning any of the other variables, the LASSO results are insinuating that they don’t have an impact the likelihood of being enrolled.</p>
+<p>After performing a 10-fold CV using only the variable lasso selected (“access”), the model’s out-of-sample AUC (0.6248) has appeared slighlty better than that that resulted from including all of the variables in the model (0.6153). However, the out-of-sample is still less than the AUC resulting from the in-sample logistic regressions, which thereby supports the conclusion that the in-sample model is over-fitting. Overall, the AUCs computed across all of the logistic models have shown only slight variation from each other - all remaining between 0.6 and 0.7, meaning their performance as a predictive model is poor.</p>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

@@ -1,0 +1,92 @@
+---
+title: Working Together
+author: ''
+date: '2020-12-12'
+slug: r-code-and-python
+categories: []
+tags: []
+description: ''
+---
+# R code & Python
+
+The *reticulation* package allows R code and Python to work together. 
+```{r}
+#reticulate::install_miniconda
+#reticulate::py_install("pandas")
+
+#install.packages("reticulate")
+library(reticulate)
+```
+
+This is an R code chunk.
+```{r}
+snowman <- "Frosty"
+snowman
+```
+
+This is a Python code chunk. Python uses 'r.' to call an item defined by R code.
+```{python}
+print(r.snowman)
+hohoho = "Santa"
+print(r.snowman, hohoho)
+```
+
+This is an R code code chunk. R code uses 'py$' to call an item defined by Python.
+```{r}
+cat(c(snowman,py$hohoho))
+```
+
+**The following chunks use the *quakes* dataset to demonstrate a few uses of Python.**
+
+Computing the minimum, maximum, mean, and median values for the variable "depth" in the quakes dataset.
+```{python}
+import pandas as pd
+
+quakes=pd.read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/datasets/quakes.csv",index_col=0)
+
+import numpy as np
+
+np.min(quakes.depth)
+np.max(quakes.depth) 
+np.mean(quakes.depth)
+np.median(quakes.depth)
+```
+
+
+Creating a new variable called depth_m that gives depth in meters rather than kilometers and add it to the dataset quakes.
+```{python}
+quakes['depth_m']= np.multiply(quakes.depth, 1000)
+quakes.head()
+```
+
+
+Creating a function that takes a string of nucleotides as input and returns a dictionary with all 3-mers present in that string, and the number of times that each 3-mer occurs. Then uses the function to find the 3-mers in the DNA sequence my_seq1 and my_seq2 given.
+
+
+Gather, from Python, the median magnitude for quakes whose longitude is greater than 175.
+```{python}
+np.median(quakes[quakes.long>175].mag)
+```
+
+```{python}
+import re
+my_seq1 = "ATCATCATG"
+my_seq2 = "CAGCCCAATCAGGCTCTACTGCCACTAAACTTACGCAGGATATATTTACGCCGACGTACT"
+
+def count_kmers(my_seq1):
+    kmers=re.findall(r"[CTAG][CTAG][CTAG]", my_seq1)
+    counts={}
+    for c in kmers:
+        if c in counts:
+            counts[c]+=1
+        else:
+            counts[c]=1
+            
+    for c in counts:
+        print(c,":", counts[c])
+count_kmers(my_seq1)
+count_kmers(my_seq2)
+```
+
+Happy holidays! 
+![](/post/2020-12-12-r-code-and-python_files/Screen Shot 2020-12-12 at 2.23.37 AM.png)

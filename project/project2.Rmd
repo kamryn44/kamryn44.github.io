@@ -1,6 +1,7 @@
 ---
 title:  "Project 2 - Medicaid Enrollment in 1986"
 author: "Kamryn Scamperle (kas6327)"
+hiderelated: true
 class: "SDS 348: Computational Biology and Bioinformatics"
 date: "2020-11-23"
 output: html_document

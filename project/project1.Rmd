@@ -1,6 +1,7 @@
 ---
 title:  "Project 1: Voting Habits of College Students"
 author: "Kamryn Scamperle (kas6327)"
+hiderelated: true
 class: "SDS 348: Computational Biology and Bioinformatics"
 date: "2020-10-18"
 output: html_document

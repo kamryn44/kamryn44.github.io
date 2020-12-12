@@ -260,7 +260,7 @@ for(i in 1:5000){
 <p><img src="/project/project2_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
 <pre class="r"><code>##two-tailed p-value 
 mean(rand_dist&gt;0.0100414 | rand_dist&lt; -0.0100414)</code></pre>
-<pre><code>## [1] 0.533</code></pre>
+<pre><code>## [1] 0.5352</code></pre>
 <p>A randomization test testing for the mean difference of availability of services (“access”) between females and males (“gender”) was performed:</p>
 <p>H0: The mean availability of services for males and females is the same.
 HA: The mean availability of services for males and females is different.</p>
@@ -367,8 +367,8 @@ fitvals&lt;-Medicaid_lm$fitted.values
 
 ## Estimated SEs
 resid_resamp%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
-<pre><code>##   (Intercept)   visits_c  access_c visits_c:access_c
-## 1   0.0432015 0.01335479 0.2396838         0.0686093</code></pre>
+<pre><code>##   (Intercept)  visits_c  access_c visits_c:access_c
+## 1  0.04444675 0.0133939 0.2329578        0.06765838</code></pre>
 <pre class="r"><code>##uncorrected SEs
 summary(Medicaid_lm)$coef</code></pre>
 <pre><code>##                        Estimate Std. Error     t value     Pr(&gt;|t|)
@@ -524,7 +524,7 @@ for(i in 1:k){
 
 summarize_all(diags,mean)</code></pre>
 <pre><code>##         acc      sens      spec       ppv        f1       auc
-## 1 0.5552121 0.5235236 0.5867332 0.5497315 0.5340034 0.6138099</code></pre>
+## 1 0.5923131 0.5661708 0.6188408 0.5903762 0.5758458 0.6322309</code></pre>
 <pre class="r"><code>##lasso
 
 resp&lt;-as.matrix(Medicaid$enroll_bi) #grab response
@@ -581,8 +581,8 @@ for(i in 1:k){
 }
 
 summarize_all(diags,mean)</code></pre>
-<pre><code>##         acc      sens     spec       ppv        f1       auc
-## 1 0.6215657 0.6085775 0.638845 0.6209518 0.6103047 0.6226172</code></pre>
+<pre><code>##         acc      sens      spec       ppv       f1       auc
+## 1 0.6235455 0.6081728 0.6439363 0.6211897 0.608073 0.6249686</code></pre>
 <p>-The accuracy of the logistic regression is 0.5984, meaning 59.84% of the particpants of the study were correctly classified as enrolled or not enrolled when the binary response variable was predicted from ALL of the other variables.
 -The sensitivity is 0.5714, meaning 57.14% of the enrollees were correctly predicted as such when the binary response variable was predicted from ALL of the other variables.
 -The specificity is 0.6423, meaning 64.23% of the non-enrollees were correctly predicted as such when the binary response variable was predicted from ALL of the other variables.
@@ -593,10 +593,7 @@ summarize_all(diags,mean)</code></pre>
 <p>After performing a 10-fold CV using only the variable lasso selected (“access”), the model’s out-of-sample AUC (0.6248) has appeared slighlty better than that that resulted from including all of the variables in the model (0.6153). However, the out-of-sample is still less than the AUC resulting from the in-sample logistic regressions, which thereby supports the conclusion that the in-sample model is over-fitting. Overall, the AUCs computed across all of the logistic models have shown only slight variation from each other - all remaining between 0.6 and 0.7, meaning their performance as a predictive model is poor.</p>
 
             
-        <hr>         <div class="related-posts">
-                <h5>Related Posts</h5>
-                
-              </div> 
+
             </div>
           </div>
 

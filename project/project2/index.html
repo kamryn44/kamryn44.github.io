@@ -7,7 +7,7 @@
     <meta name="author" content="Kamryn Scamperle" />
     
     <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
-    <title>Project 2 - Medicaid Enrollment in 1986</title>
+    <title>Project 2: Medicaid Enrollment in 1986</title>
     <meta name="generator" content="Hugo 0.79.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/css/main.css" />
@@ -54,7 +54,7 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="/project/project2/">Project 2 - Medicaid Enrollment in 1986</a></strong>
+            <strong><a href="/project/project2/">Project 2: Medicaid Enrollment in 1986</a></strong>
           </h3>
         </div>
  
@@ -75,7 +75,7 @@
 
 
 <p><strong>Introduction</strong></p>
-<p>This dataset (from the 1986 Medicaid Consumer Survey) is comprised of 996 people (observations) in California who are eligible to claim Medicaid benefits. The study participants have been split into two groups: one group contains people who are enrolled in a managed care demonstration program and the other group is a fee-for-service comparison group of non-enrollees. There are a total of 14 variables for each observed participant, some of which include: “visits” for the number of visits to the doctor they made in 1986; “age” for the age of the respondent; “income” indicating the annual household income (an averaged range); “health1”, which represents the first principal component (divided by 1000)of three health-status variables: functional limitations, acute conditions, and chronic condition; “access”, indicative of the availability of services for the respondent (0 = low access, 1 = high access); “gender”, with options of female or male; and “enroll”, which is a factor stating whether the individual is or is not enrolled in a demonstration program. Overall, these variables (and the few not listed) were analyzed upon the binary variable “enroll” so as to find out if any of them were predictive or indicative of whether an individual is enrolled in a demonstration program. This could lead to a better understanding of the differences between the characteristics and effects of a fee-for-service-based health care system versus a health care system comprised of government-run programs.</p>
+<p>This dataset (from the 1986 Medicaid Consumer Survey) is comprised of 996 people (observations) in California who were eligible to claim Medicaid benefits at the time. The study participants have been split into two groups: one group contains people who are enrolled in a managed care demonstration program and the other group is a fee-for-service comparison group of non-enrollees. There are a total of 14 variables for each observed participant, some of which include: “visits” for the number of visits to the doctor they made in 1986; “age” for the age of the respondent; “income” indicating the annual household income (an averaged range); “health1”, which represents the first principal component (divided by 1000)of three health-status variables: functional limitations, acute conditions, and chronic condition; “access”, indicative of the availability of services for the respondent (0 = low access, 1 = high access); “gender”, with options of female or male; and “enroll”, which is a factor stating whether the individual is or is not enrolled in a demonstration program. Overall, these variables (and the few not listed) were analyzed upon the binary variable “enroll” so as to find out if any of them were predictive or indicative of whether an individual is enrolled in a demonstration program. This could lead to a better understanding of the differences between the characteristics and effects of a fee-for-service-based health care system versus a health care system comprised of government-run programs.</p>
 <pre class="r"><code>library(tidyverse)</code></pre>
 <pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
 <pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
@@ -260,7 +260,7 @@ for(i in 1:5000){
 <p><img src="/project/project2_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
 <pre class="r"><code>##two-tailed p-value 
 mean(rand_dist&gt;0.0100414 | rand_dist&lt; -0.0100414)</code></pre>
-<pre><code>## [1] 0.5352</code></pre>
+<pre><code>## [1] 0.5332</code></pre>
 <p>A randomization test testing for the mean difference of availability of services (“access”) between females and males (“gender”) was performed:</p>
 <p>H0: The mean availability of services for males and females is the same.
 HA: The mean availability of services for males and females is different.</p>
@@ -367,8 +367,8 @@ fitvals&lt;-Medicaid_lm$fitted.values
 
 ## Estimated SEs
 resid_resamp%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
-<pre><code>##   (Intercept)  visits_c  access_c visits_c:access_c
-## 1  0.04444675 0.0133939 0.2329578        0.06765838</code></pre>
+<pre><code>##   (Intercept) visits_c  access_c visits_c:access_c
+## 1  0.04383055 0.013552 0.2381323        0.06855945</code></pre>
 <pre class="r"><code>##uncorrected SEs
 summary(Medicaid_lm)$coef</code></pre>
 <pre><code>##                        Estimate Std. Error     t value     Pr(&gt;|t|)
@@ -523,8 +523,8 @@ for(i in 1:k){
 }
 
 summarize_all(diags,mean)</code></pre>
-<pre><code>##         acc      sens      spec       ppv        f1       auc
-## 1 0.5923131 0.5661708 0.6188408 0.5903762 0.5758458 0.6322309</code></pre>
+<pre><code>##         acc      sens      spec       ppv       f1       auc
+## 1 0.5813131 0.5528643 0.6146951 0.5823273 0.562065 0.6342699</code></pre>
 <pre class="r"><code>##lasso
 
 resp&lt;-as.matrix(Medicaid$enroll_bi) #grab response
@@ -543,7 +543,7 @@ lasso_fit&lt;-glmnet(lasso_preds,resp,family=&quot;binomial&quot;,lambda=lasso_c
 coef(lasso_fit)</code></pre>
 <pre><code>## 16 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                         s0
-## (Intercept)    -0.03279516
+## (Intercept)    -0.03312037
 ## visits          .         
 ## exposure        .         
 ## children        .         
@@ -551,13 +551,13 @@ coef(lasso_fit)</code></pre>
 ## income          .         
 ## health1         .         
 ## health2         .         
-## access          0.25338158
+## access          0.30610739
 ## marriedyes      .         
 ## gendermale      .         
 ## ethnicityother  .         
-## schoolcollege   .         
-## schoolhs        .         
-## schoolnone      .         
+## schoolcollege   0.01206359
+## schoolhs        0.01379931
+## schoolnone      0.04330235
 ## programssi      .</code></pre>
 <pre class="r"><code>##CV2 
 k=10
@@ -581,8 +581,8 @@ for(i in 1:k){
 }
 
 summarize_all(diags,mean)</code></pre>
-<pre><code>##         acc      sens      spec       ppv       f1       auc
-## 1 0.6235455 0.6081728 0.6439363 0.6211897 0.608073 0.6249686</code></pre>
+<pre><code>##         acc      sens      spec       ppv        f1       auc
+## 1 0.6313131 0.6305968 0.6327066 0.6269412 0.6274669 0.6203006</code></pre>
 <p>-The accuracy of the logistic regression is 0.5984, meaning 59.84% of the particpants of the study were correctly classified as enrolled or not enrolled when the binary response variable was predicted from ALL of the other variables.
 -The sensitivity is 0.5714, meaning 57.14% of the enrollees were correctly predicted as such when the binary response variable was predicted from ALL of the other variables.
 -The specificity is 0.6423, meaning 64.23% of the non-enrollees were correctly predicted as such when the binary response variable was predicted from ALL of the other variables.
@@ -597,25 +597,7 @@ summarize_all(diags,mean)</code></pre>
             </div>
           </div>
 
-   <hr>  <div class="disqus">
-  <div id="disqus_thread"></div>
-  <script type="text/javascript">
 
-    (function() {
-      
-      
-      if (window.location.hostname == "localhost")
-        return;
-
-      var disqus_shortname = '';
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-</div> 
         </div>
       </div>
     </div>

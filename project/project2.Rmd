@@ -1,7 +1,8 @@
 ---
-title:  "Project 2 - Medicaid Enrollment in 1986"
-author: "Kamryn Scamperle (kas6327)"
+title:  "Project 2: Medicaid Enrollment in 1986"
+author: "Kamryn Scamperle"
 hiderelated: true
+hidediscus: true
 class: "SDS 348: Computational Biology and Bioinformatics"
 date: "2020-11-23"
 output: html_document
@@ -9,7 +10,7 @@ output: html_document
 
 **Introduction** 
 
-This dataset (from the 1986 Medicaid Consumer Survey) is comprised of 996 people (observations) in California who are eligible to claim Medicaid benefits. The study participants have been split into two groups: one group contains people who are enrolled in a managed care demonstration program and the other group is a fee-for-service comparison group of non-enrollees. There are a total of 14 variables for each observed participant, some of which include: "visits" for the number of visits to the doctor they made in 1986; "age" for the age of the respondent; "income" indicating the annual household income (an averaged range); "health1", which represents the first principal component (divided by 1000)of three health-status variables: functional limitations, acute conditions, and chronic condition; "access", indicative of the availability of services for the respondent (0 = low access, 1 = high access); "gender", with options of female or male; and "enroll", which is a factor stating whether the individual is or is not enrolled in a demonstration program. Overall, these variables (and the few not listed) were analyzed upon the binary variable "enroll" so as to find out if any of them were predictive or indicative of whether an individual is enrolled in a demonstration program. This could lead to a better understanding of the differences between the characteristics and effects of a fee-for-service-based health care system versus a health care system comprised of government-run programs.
+This dataset (from the 1986 Medicaid Consumer Survey) is comprised of 996 people (observations) in California who were eligible to claim Medicaid benefits at the time. The study participants have been split into two groups: one group contains people who are enrolled in a managed care demonstration program and the other group is a fee-for-service comparison group of non-enrollees. There are a total of 14 variables for each observed participant, some of which include: "visits" for the number of visits to the doctor they made in 1986; "age" for the age of the respondent; "income" indicating the annual household income (an averaged range); "health1", which represents the first principal component (divided by 1000)of three health-status variables: functional limitations, acute conditions, and chronic condition; "access", indicative of the availability of services for the respondent (0 = low access, 1 = high access); "gender", with options of female or male; and "enroll", which is a factor stating whether the individual is or is not enrolled in a demonstration program. Overall, these variables (and the few not listed) were analyzed upon the binary variable "enroll" so as to find out if any of them were predictive or indicative of whether an individual is enrolled in a demonstration program. This could lead to a better understanding of the differences between the characteristics and effects of a fee-for-service-based health care system versus a health care system comprised of government-run programs.
  
 
 ```{R}

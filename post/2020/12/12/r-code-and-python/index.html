@@ -111,7 +111,7 @@ np.min(quakes.depth)</code></pre>
 <pre><code>## 311.371</code></pre>
 <pre class="python"><code>np.median(quakes.depth)</code></pre>
 <pre><code>## 247.0</code></pre>
-<p>Creating a new variable called depth_m that gives depth in meters rather than kilometers and add it to the dataset quakes.</p>
+<p>Creating a new variable called depth_m that gives depth in meters rather than kilometers and adds it to the quakes dataset.</p>
 <pre class="python"><code>quakes[&#39;depth_m&#39;]= np.multiply(quakes.depth, 1000)
 quakes.head()</code></pre>
 <pre><code>##      lat    long  depth  mag  stations  depth_m
@@ -120,10 +120,10 @@ quakes.head()</code></pre>
 ## 3 -26.00  184.10     42  5.4        43    42000
 ## 4 -17.97  181.66    626  4.1        19   626000
 ## 5 -20.42  181.96    649  4.0        11   649000</code></pre>
-<p>Creating a function that takes a string of nucleotides as input and returns a dictionary with all 3-mers present in that string, and the number of times that each 3-mer occurs. Then uses the function to find the 3-mers in the DNA sequence my_seq1 and my_seq2 given.</p>
 <p>Gather, from Python, the median magnitude for quakes whose longitude is greater than 175.</p>
 <pre class="python"><code>np.median(quakes[quakes.long&gt;175].mag)</code></pre>
 <pre><code>## 4.5</code></pre>
+<p>Creating a function that takes a string of nucleotides as input and returns a dictionary with all 3-mers present in that string, and the number of times that each 3-mer occurs. Then uses the function to find the 3-mers in the DNA sequence my_seq1 and my_seq2 given.</p>
 <pre class="python"><code>import re
 my_seq1 = &quot;ATCATCATG&quot;
 my_seq2 = &quot;CAGCCCAATCAGGCTCTACTGCCACTAAACTTACGCAGGATATATTTACGCCGACGTACT&quot;
